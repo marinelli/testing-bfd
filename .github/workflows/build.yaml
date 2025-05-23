@@ -1,0 +1,62 @@
+name: build
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  DEBCONF_NONINTERACTIVE_SEEN: true
+  DEBCONF_NOWARNINGS: yes
+  DEBCONF_TERSE: yes
+  DEBIAN_FRONTEND: noninteractive
+  GHCUP_CURL_OPTS: --proto =https --tlsv1.2 -sSfL
+  GHCUP_SKIP_UPDATE_CHECK: y
+  NO_COLOR: y
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:25.04
+    steps:
+      - name: env
+        run: echo "$HOME/.ghcup/bin" >> "$GITHUB_PATH"
+      - name: setup
+        run: |
+          set -ex
+          apt-get -qq update
+          apt-get -qq -y install apt libapt-pkg
+          apt-get -qq -y upgrade
+          apt-get -qq -y install \
+            build-essential binutils lld ca-certificates curl \
+            libffi-dev libgmp-dev libncurses-dev libtinfo-dev
+          mkdir -p "$HOME/.ghcup/bin"
+          GHCUP_VERSION='0.1.50.2'
+          GHCUP_FILE="x86_64-linux-ghcup-$GHCUP_VERSION"
+          curl $GHCUP_CURL_OPTS -o "$HOME/.ghcup/bin/ghcup" \
+            "https://github.com/haskell/ghcup-hs/releases/download/v$GHCUP_VERSION/$GHCUP_FILE"
+          chmod +x "$HOME/.ghcup/bin/ghcup"
+          ghcup --numeric-version
+          ghcup install cabal --set latest
+          cabal --numeric-version
+          ghcup install ghc --set latest
+          ghc --numeric-version
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: build
+        run: |
+          cabal clean
+          cat > cabal.project.local <<CONFIG
+          package *
+            ghc-options: -optl-fuse-ld=lld
+            ld-options: -fuse-ld=lld
+          CONFIG
+          cabal build all
+          cabal clean
+          cat > cabal.project.local <<CONFIG
+          package *
+            ghc-options: -optl-fuse-ld=bfd
+            ld-options: -fuse-ld=bfd
+          CONFIG
+          cabal build all
+          cabal clean
