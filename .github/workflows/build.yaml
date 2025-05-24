@@ -9,7 +9,7 @@ env:
   DEBCONF_NOWARNINGS: yes
   DEBCONF_TERSE: yes
   DEBIAN_FRONTEND: noninteractive
-  GHCUP_CURL_OPTS: --proto =https --tlsv1.3 -sSfLR
+  GHCUP_CURL_OPTS: --proto =https --tlsv1.2 -sSfLR
   GHCUP_SKIP_UPDATE_CHECK: y
   NO_COLOR: y
 
