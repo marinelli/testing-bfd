@@ -9,7 +9,7 @@ env:
   DEBCONF_NOWARNINGS: yes
   DEBCONF_TERSE: yes
   DEBIAN_FRONTEND: noninteractive
-  GHCUP_CURL_OPTS: --proto =https --tlsv1.2 -sSfL
+  GHCUP_CURL_OPTS: --proto =https --tlsv1.3 -sSfLR
   GHCUP_SKIP_UPDATE_CHECK: y
   NO_COLOR: y
 
@@ -19,31 +19,31 @@ jobs:
     container:
       image: ubuntu:25.04
     steps:
-      - name: env
+      - name: Configure PATH
         run: echo "$HOME/.ghcup/bin" >> "$GITHUB_PATH"
-      - name: setup
+      - name: Setup GHC
         run: |
           set -ex
-          apt-get -qq update
-          apt-get -qq -y install apt libapt-pkg
-          apt-get -qq -y upgrade
-          apt-get -qq -y install \
-            build-essential binutils lld ca-certificates curl \
+          apt -qq update
+          apt -qq -y install apt libapt-pkg
+          apt -qq -y upgrade
+          apt -qq -y install \
+            build-essential binutils binutils-gold lld ca-certificates curl \
             libffi-dev libgmp-dev libncurses-dev libtinfo-dev
-          mkdir -p "$HOME/.ghcup/bin"
+          GHCUP_REPO='https://github.com/haskell/ghcup-hs'
           GHCUP_VERSION='0.1.50.2'
           GHCUP_FILE="x86_64-linux-ghcup-$GHCUP_VERSION"
-          curl $GHCUP_CURL_OPTS -o "$HOME/.ghcup/bin/ghcup" \
-            "https://github.com/haskell/ghcup-hs/releases/download/v$GHCUP_VERSION/$GHCUP_FILE"
+          curl "$GHCUP_REPO/releases/download/v$GHCUP_VERSION/$GHCUP_FILE" \
+            $GHCUP_CURL_OPTS --create-dirs -o "$HOME/.ghcup/bin/ghcup"
           chmod +x "$HOME/.ghcup/bin/ghcup"
           ghcup --numeric-version
           ghcup install cabal --set latest
           cabal --numeric-version
           ghcup install ghc --set latest
           ghc --numeric-version
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v4
-      - name: build
+      - name: Build and link with ld.lld
         run: |
           cabal clean
           cat > cabal.project.local <<CONFIG
@@ -52,6 +52,17 @@ jobs:
             ld-options: -fuse-ld=lld
           CONFIG
           cabal build all
+      - name: Build and link with ld.gold
+        run: |
+          cabal clean
+          cat > cabal.project.local <<CONFIG
+          package *
+            ghc-options: -optl-fuse-ld=gold
+            ld-options: -fuse-ld=gold
+          CONFIG
+          cabal build all
+      - name: Build and link with ld.bfd
+        run: |
           cabal clean
           cat > cabal.project.local <<CONFIG
           package *
@@ -59,4 +70,3 @@ jobs:
             ld-options: -fuse-ld=bfd
           CONFIG
           cabal build all
-          cabal clean
