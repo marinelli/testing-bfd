@@ -1,6 +1,6 @@
 module A where
 
-import B qualified
+import qualified B
 
 a :: B.SomeType
 a = B.someValue
