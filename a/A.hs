@@ -2,5 +2,5 @@ module A where
 
 import qualified B
 
-a :: B.SomeType
-a = B.someValue
+a :: B.T
+a = B.b

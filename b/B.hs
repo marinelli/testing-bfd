@@ -1,10 +1,6 @@
-{-# LANGUAGE DerivingStrategies #-}
-{-# LANGUAGE GeneralisedNewtypeDeriving #-}
-
 module B where
 
-newtype SomeType = SomeValue Int
-  deriving newtype (Num)
+newtype T = C Int
 
-someValue :: SomeType
-someValue = 123
+b :: T
+b = C 456
