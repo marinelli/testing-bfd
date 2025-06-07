@@ -1,12 +1,10 @@
 module A where
 
 import qualified B
+import qualified C
 
-a :: B.T
-a = B.tiny
+b :: B.T1
+b = B.inlined
 
-b :: B.T
-b = B.huge
-
-c :: B.T
-c = B.inlined
+c :: C.T2
+c = C.noinlined
