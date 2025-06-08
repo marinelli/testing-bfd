@@ -2,8 +2,14 @@ module A where
 
 import qualified B
 
-x :: B.T
-x = B.inlined
+a :: B.T
+a = B.inlined255
 
-y :: B.T
-y = B.noinlined
+b :: B.T
+b = B.noinlined255
+
+c :: B.T
+c = B.inlined256
+
+d :: B.T
+d = B.noinlined256
