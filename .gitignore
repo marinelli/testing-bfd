@@ -1,7 +1,4 @@
-# Cabal stuffs
 dist/
 dist-newstyle/
 cabal.project.local
-
-# Temporary stuffs
 tmp/

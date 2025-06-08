@@ -1,10 +1,9 @@
 module A where
 
 import qualified B
-import qualified C
 
-b :: B.T1
-b = B.inlined
+x :: B.T
+x = B.inlined
 
-c :: C.T2
-c = C.noinlined
+y :: B.T
+y = B.noinlined

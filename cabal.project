@@ -1,2 +1,5 @@
-packages: a b c
 optimization: False
+packages: a b
+package *
+  ghc-options: -optl-fuse-ld=bfd
+  ld-options: -fuse-ld=bfd

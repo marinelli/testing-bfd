@@ -8,6 +8,5 @@ library
   hs-source-dirs:   .
   exposed-modules:  A
   build-depends:
-    , base  <5
     , b
-    , c
+    , base  <5
